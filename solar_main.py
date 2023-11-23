@@ -25,6 +25,8 @@ time_step = None
 space_objects = []
 """Список космических объектов."""
 
+stat_hist = []
+"""Список точек значений T V r"""
 
 def execution():
     """Функция исполнения -- выполняется циклически, вызывая обработку всех небесных тел,
@@ -34,11 +36,15 @@ def execution():
     """
     global physical_time
     global displayed_time
+    global stat_hist
     recalculate_space_objects_positions(space_objects, time_step.get())
     for body in space_objects:
         update_object_position(space, body)
     physical_time += time_step.get()
     displayed_time.set("%.1f" % physical_time + " seconds gone")
+    
+    if len(space_objects) >=2:
+        stat_hist += [[physical_time, (space_objects[1].Vx**2+space_objects[1].Vy**2)**0.5, ((space_objects[1].x-space_objects[0].x)**2+(space_objects[1].y-space_objects[0].y)**2)**0.5]]
 
     if perform_execution:
         space.after(101 - int(time_speed.get()), execution)
@@ -99,6 +105,9 @@ def save_file_dialog():
     """
     out_filename = asksaveasfilename(filetypes=(("Text file", ".txt"),))
     write_space_objects_data_to_file(out_filename, space_objects)
+    
+    out_filename = asksaveasfilename(filetypes=(("Text file", ".txt"),))
+    write_statistic_data_to_file(out_filename, stat_hist)
 
 
 def main():
